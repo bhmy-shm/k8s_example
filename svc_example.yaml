@@ -1,0 +1,20 @@
+#ClusterIP
+apiVersion: v1            #API接口版本
+kind: Service             #SVC服务发现
+metadata:                 #基本信息
+  name: Nginx-SVC         #自定义服务发现名字
+  namespace: default      #命名空间
+spec:                     #详细信息
+  #SVC类型，1.默认ClusterIP 2.NodePord 3.LoadBalancer 4.ExternalName
+  type: ClusterIP
+  selector:			  	  #选择器
+    app: nginx-deployment #service与pod 的匹配标签，和pod标签要相互对应
+    release: stabel       #service匹配标签
+    ports:
+      - name: 80tcp80     #端口暴露别名，匹配Deployment.spec.ports名称
+        port: 80          #暴露端口
+        Protocol: TCP     #暴露协议
+        targetPort: 80    #后端真实服务器端口
+
+---
+#ClusterIP-DNS

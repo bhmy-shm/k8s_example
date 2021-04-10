@@ -1,0 +1,48 @@
+apiVersion: apps/v1                     #Api接口版本
+kind: Deployment                        #定义控制器
+metadata:                               #信息
+  name: nginx-deployment                #deployment名称
+  namespace: myweb                      #命名空间
+
+spec:                                   #deployment详细信息
+  replicas: 3                           #副本数
+  selector:                             #选择标签
+    matchLabels:                        #标签匹配
+      app: nginx-deployment             # app标签，匹配 metadata.name[nginx-deployment]
+      release: stable                   # release标签，
+  template:                             #pod容器
+    metadata:                           #具体信息
+      labels:                           #定义标签
+        app: nginx-deployment           #匹配app标签 nginx-deployment
+        release: stable                 #匹配 release标签
+        env: test
+    spec:                               #容器的详细信息
+      nodeSelector:                     #主机调度1，通过设定的节点标签名，来指定pod运行在哪个节点上
+        name: node-1                    # nodeSelector.name 标签名
+      #nodeName: node-1                 #主机调度2，通过节点名，来指定pod运行在哪个节点上
+      containers:
+        - name: nginx			        #容器名
+          image: nginx:1.7.9            #容器镜像
+          imagePullPolicy: IfNotPresent #镜像拉取规则 1.IfNotPresen默认值，本地有使用本地 2.Always 强制总是拉取 3.Never 只使用本地，从不拉取
+          command: ["/app/mygo"]        #容器启动后的运行命令
+          ports:
+            - containerPort: 80         #容器端口
+          volumeMounts:                 #挂载数据卷
+            - name: v1                  #数据卷名字，自定义
+              mountPath: /app           #容器内的挂载路径
+      #-------------- hostpath 与 Containers 对齐---------------------
+      volumes:
+        - name: v1                      #与数据卷的名字要对应
+          hostPath:
+            path: /root/myweb           #主机目录位置
+  # ------------------ pvc - 与template 对齐 ------------------------
+  volumeClaimTemplates:                 #声明pvc
+    - metadata:
+        name: v1                        #与数据卷的名字要对应
+    spec:                               #详细信息
+      - accessModes: ["ReadWriteOnce"]  #访问策略
+        storageClassName: "nfs"         #类
+        resources:
+          request:
+            storage:  1Gi               #pvc要求卷的容量大小，不能比已经存在的pv大
+
