@@ -1,0 +1,9 @@
+apiVersion: rbac.authorization.k8s.io/v1  #API接口
+kind: ClusterRole                         #接口类型
+metadata:
+  name: mypod_cluster               	  # ClusterRole角色名称
+  namespace: default			          # ClusterRole角色名称空间
+rules: 							          # 权限规则
+  - apiGroups: [""]                       # 为空"",默认API核心组, 也可以写["*"]
+    resources: ["pods"]			          # 资源对象，Pod 容器；可以填写多个["pods","service"]; 查看资源 Kubectl api-resoucres -o wide
+    verbs: ["get","watch","list"]		  # 动作：获取信息，监听，列出

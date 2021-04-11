@@ -1,0 +1,15 @@
+apiVersion: rbac.authorization.k8s.io/v1        #API接口
+kind: ClusterRoleBinding                        #API接口类型
+metadata:
+  name: mypod_ClusterRolebinding                #自定义的rolebinding名称
+  namespace: default                            #命名空间
+
+subjects:                                       #用户绑定使用信息
+  - kind: User                                  #用户类型
+    name: shm                                   #用户名字
+    apiGroup: rbac.authorization.k8s.io         #角色API权限接口
+
+roleRef:                                        #角色权限信息
+  kind: ClusterRole                             #角色类型
+  name: mypod_cluster                           #角色名字
+  apiGroup: rbac.authorization.k8s.io           #角色API权限接口

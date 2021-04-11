@@ -20,6 +20,7 @@ spec:                                   #deployment详细信息
       nodeSelector:                     #主机调度1，通过设定的节点标签名，来指定pod运行在哪个节点上
         name: node-1                    # nodeSelector.name 标签名
       #nodeName: node-1                 #主机调度2，通过节点名，来指定pod运行在哪个节点上
+      serviceAccoutName: mysa           # 指定SA用户，并赋予该用户访问 K8S-API的权限
       containers:
         - name: nginx			        #容器名
           image: nginx:1.7.9            #容器镜像
