@@ -328,7 +328,7 @@ controller:
  #         serverAddress: http://<prometheus-host>:9090
  #         metricName: http_requests_total
  #         threshold: '100'
- #         query: sum(rate(http_requests_total{deployment="my-deployment"}[2m]))
+ #         query: sum(rate(http_requests_total{WorkloadResources="my-WorkloadResources"}[2m]))
 
     behavior: {}
  #     scaleDown:

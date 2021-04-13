@@ -1,0 +1,30 @@
+apiVersion: apps/v1                     #Api接口版本
+kind: Deployment                        #定义控制器
+metadata:                               #信息
+  name: nginx                            #deployment名称
+  namespace: default
+
+spec:                                   #deployment详细信息
+  replicas: 1                           #副本数
+  selector:                             #选择标签
+    matchLabels:                        #标签匹配
+      app: nginx      # 主pod标签，app标签，匹配 metadata.name[nginx-WorkloadResources]                   # 副本标签,release标签
+  template:                             #模板信息
+    metadata:                           #具体信息
+      labels:                           #定义标签
+        app: nginx           #匹配app标签 nginx-WorkloadResources          release: stable                 #匹配 release标签
+
+    spec:
+      containers:
+        - name: nginx                    #容器名
+          image: nginx:1.18-alpine            #容器镜像
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - mountPath: /nginx/data
+              name: nfs-dir
+      volumes:
+        - name: nfs-dir
+          persistentVolumeClaim:
+            claimName: nginx-pvc

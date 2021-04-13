@@ -2,10 +2,11 @@
 apiVersion: v1              #接口名
 kind: PersistentVolume		#创建PV
 metadata:                   #基本信息
-  name: nfspv				#PV名称
+  name: nfs-pv    			#PV名称
+  namespace: default        #命名空间
 spec:                       #详细信息
   capacity:
-    storage: 5Gi			#声明PV卷的容量大小
+    storage: 2Gi			#声明PV卷的容量大小
   accessModes:              #挂载策略
     # ReadWriteOnce 单节点,读/写 || ReadOnlyMany  多节点，只读 || ReadWriteMany 多节点，读/写
     - ReadWriteOnce
@@ -15,9 +16,20 @@ spec:                       #详细信息
   persistentVolumeReclaimPolicy: Retain	#保留策略，Pod 删除后的策略
   storageClassName: nfs		#存储类的名称
   nfs:						#类的具体服务信息
-    path: /root/nfsdata			#NFS存储服务器的共享目录
+    path: /root/nfsdata		#NFS存储服务器的共享目录
     server: 192.168.168.14	#NFS存储服务器的IP地址
 
 ---
-
-#如果有第二个 NFS PV
+#NFS PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce     #ReadWriteMany多主机读写
+  storageClassName: "nfs"
+  resources:
+    requests:
+      storage: 1Gi

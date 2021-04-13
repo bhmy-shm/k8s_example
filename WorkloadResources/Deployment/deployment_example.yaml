@@ -9,13 +9,13 @@ spec:                                   #deployment详细信息
   selector:                             #选择标签
     matchLabels:                        #标签匹配
       app: nginx-deployment             # app标签，匹配 metadata.name[nginx-deployment]
-      release: stable                   # release标签，
-  template:                             #pod容器
+      release: stable                   # release标签
+  template:                             #模板信息
     metadata:                           #具体信息
       labels:                           #定义标签
         app: nginx-deployment           #匹配app标签 nginx-deployment
         release: stable                 #匹配 release标签
-        env: test
+
     spec:                               #容器的详细信息
       nodeSelector:                     #主机调度1，通过设定的节点标签名，来指定pod运行在哪个节点上
         name: node-1                    # nodeSelector.name 标签名
@@ -26,24 +26,41 @@ spec:                                   #deployment详细信息
           image: nginx:1.7.9            #容器镜像
           imagePullPolicy: IfNotPresent #镜像拉取规则 1.IfNotPresen默认值，本地有使用本地 2.Always 强制总是拉取 3.Never 只使用本地，从不拉取
           command: ["/app/mygo"]        #容器启动后的运行命令
+          env:                          #环境变量
+            - name: GET_HOSTS_FROM      #环境变量名称
+              value: dns                #环境变量值
           ports:
-            - containerPort: 80         #容器端口
+            - containerPort: 80         #容器内端口
           volumeMounts:                 #挂载数据卷
-            - name: v1                  #数据卷名字，自定义
-              mountPath: /app           #容器内的挂载路径
+            - mountPath: /nginx/app     #容器内的目录 挂载路径
+              name: mydir               #挂载名字(hostpath)
+            - mountPath: /nginx/conf/nginx.conf #容器内的文件 挂载路径
+              name: myfile              #挂载名字(hostpath)
+            - mountPath: /nginx/html    # nfs 容器内挂载路径
+              name: nfs                 #挂载名字（nfs）
+
+         # ------------ 可以在一个Pod中创建多个容器 -------------
+         - name: php
+           image: php:7.3.12
+           ports:
+             - containerPort: 9000
+           command: ["/bin/sh","-c","php-fpm;sleep 3600"]
+           volumeMounts:
+             - mountPath: /test
+               name: cache-volume
       #-------------- hostpath 与 Containers 对齐---------------------
       volumes:
-        - name: v1                      #与数据卷的名字要对应
+        - name: mydir                   #与数据卷的名字要对应
           hostPath:
             path: /root/myweb           #主机目录位置
-  # ------------------ pvc - 与template 对齐 ------------------------
-  volumeClaimTemplates:                 #声明pvc
-    - metadata:
-        name: v1                        #与数据卷的名字要对应
-    spec:                               #详细信息
-      - accessModes: ["ReadWriteOnce"]  #访问策略
-        storageClassName: "nfs"         #类
-        resources:
-          request:
-            storage:  1Gi               #pvc要求卷的容量大小，不能比已经存在的pv大
+            type: DirectoryCreate       #挂载的文件类型是目录，如果没有该目录，则将根据需要创建空目录，权限设置为 0755
+        - name: myfile
+          hostPath:
+            path: /root/myweb/conf/nginx.conf #主机目录位置
+            type: File                  #挂载的是文件类型
+      # 其它挂载参数，官网地址：https://kubernetes.io/zh/docs/concepts/storage/volumes/#hostpath-fileorcreate-example
+      # --------------- emptyDir 与 Containers 对齐 ---------------------
+        - name: cache_volume            #数据卷名字
+          emptyDir: {}
+
 
